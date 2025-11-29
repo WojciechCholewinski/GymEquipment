@@ -38,6 +38,7 @@ namespace GymEquipment.Domain.Products
             Type = type;
             Category = category;
             WeightKg = weightKg;
+            ChangeDescription(description);
             ChangePrice(price);
             ChangeQuantity(quantityAvailable);
         }
