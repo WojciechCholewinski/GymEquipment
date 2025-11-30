@@ -18,10 +18,6 @@ namespace GymEquipment.Application.Products
 
         Task<(ValidationResult Validation, Product? Product)> UpdateAsync(
             Guid id,
-            string name,
-            EquipmentType type,
-            ProductCategory category,
-            decimal? weightKg,
             int quantity,
             decimal price,
             string? description,

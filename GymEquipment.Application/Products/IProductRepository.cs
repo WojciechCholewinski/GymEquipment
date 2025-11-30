@@ -14,5 +14,6 @@ namespace GymEquipment.Application.Products
         Task AddAsync(Product product, CancellationToken cancellationToken = default);
         Task RemoveAsync(Product product, CancellationToken cancellationToken = default);
         Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
+        Task UpdateAsync(Product product, CancellationToken cancellationToken = default);
     }
 }

@@ -100,7 +100,7 @@ public class ProductService : IProductService
 
         #endregion Tworzenie encji domenowej
 
-        #region Historia
+        #region Wpis do historii
 
         var historyEntry = new ProductHistoryEntry(
             Guid.NewGuid(),
@@ -113,7 +113,7 @@ public class ProductService : IProductService
 
         await _history.AddAsync(historyEntry, cancellationToken);
 
-        #endregion Historia
+        #endregion Wpis do historii
 
         return (validation, product);
     }
@@ -151,20 +151,107 @@ public class ProductService : IProductService
 
     public async Task<(ValidationResult Validation, Product? Product)> UpdateAsync(
         Guid id,
-        string name,
-        EquipmentType type,
-        ProductCategory category,
-        decimal? weightKg,
         int quantity,
         decimal price,
         string? description,
         CancellationToken cancellationToken = default)
     {
-        // TODO: napisać UpdateAsync
-        // podobnie jak Create, tylko:
-        // - wczytuje produkt z repo
-        // - porównuje stare wartości z nowymi
-        // - zapisuje zmiany i historie
-        throw new NotImplementedException();
+
+        #region Walidacja
+
+        var validation = new ValidationResult();
+
+        var existing = await _products.GetByIdAsync(id, cancellationToken);
+        if (existing is null)
+        {
+            validation.AddError(
+                code: "Product.NotFound",
+                message: "Product with given id does not exist.",
+                field: null);
+
+            return (validation, null);
+        }
+
+
+        // cena
+        if (!_priceRangeSpec.IsSatisfiedBy((existing.Category, price)))
+        {
+            validation.AddError(
+                _priceRangeSpec.ErrorCode,
+                _priceRangeSpec.ErrorMessage,
+                "Price");
+        }
+
+        // ilość
+        if (quantity < 0)
+        {
+            validation.AddError(
+                "Product.Quantity.Negative",
+                "Quantity cannot be negative.",
+                "Quantity");
+        }
+
+        if (!validation.IsValid)
+        {
+            return (validation, null);
+        }
+
+        #endregion Walidacja
+
+        #region Update encji domenowej
+
+        var oldPrice = existing.Price;
+        var oldQuantity = existing.QuantityAvailable;
+        var oldDescription = existing.Description;
+
+        if (oldPrice != price)
+        {
+            existing.ChangePrice(price);
+        }
+
+        if (oldQuantity != quantity)
+        {
+            existing.ChangeQuantity(quantity);
+        }
+
+        if (!string.Equals(oldDescription, description, StringComparison.Ordinal))
+        {
+            existing.ChangeDescription(description);
+        }
+
+        await _products.UpdateAsync(existing, cancellationToken);
+
+        #endregion Update encji domenowej
+
+        #region Wpis do historii
+
+        var changes = new List<string>();
+
+        if (oldPrice != price)
+            changes.Add($"Price: {oldPrice} -> {price}");
+
+        if (oldQuantity != quantity)
+            changes.Add($"Quantity: {oldQuantity} -> {quantity}");
+
+        if (!string.Equals(oldDescription, description, StringComparison.Ordinal))
+            changes.Add("Description changed");
+
+        if (changes.Count > 0)
+        {
+            var historyEntry = new ProductHistoryEntry(
+                id: Guid.NewGuid(),
+                productId: existing.Id,
+                changeType: ProductChangeType.Updated,
+                changedAtUtc: DateTime.UtcNow,
+                changedBy: null,
+                oldValue: string.Join("; ", changes),
+                newValue: null);
+
+            await _history.AddAsync(historyEntry, cancellationToken);
+        }
+
+        #endregion Wpis do historii
+
+        return (validation, existing);
     }
 }

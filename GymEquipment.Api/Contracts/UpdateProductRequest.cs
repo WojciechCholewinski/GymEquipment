@@ -3,11 +3,8 @@
 namespace GymEquipment.Api.Contracts
 {
     public record UpdateProductRequest(
-    string Name,
-    string? Description,
-    EquipmentType Type,
-    ProductCategory Category,
     decimal? WeightKg,
     int QuantityAvailable,
-    decimal Price);
+    decimal Price,
+    string? Description);
 }
