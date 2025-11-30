@@ -34,5 +34,11 @@ namespace GymEquipment.Infrastructure.Repositories
             return await _db.Products
                 .AnyAsync(p => p.Name == name, cancellationToken);
         }
+
+        public async Task UpdateAsync(Product product, CancellationToken cancellationToken = default)
+        {
+            _db.Products.Update(product);
+            await _db.SaveChangesAsync(cancellationToken);
+        }
     }
 }
