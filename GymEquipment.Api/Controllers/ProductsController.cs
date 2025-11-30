@@ -48,7 +48,7 @@ public class ProductsController : ControllerBase
 
         if (!validation.IsValid || product is null)
         {
-            return validation.ToBadRequest(this);
+            return validation.ToUnprocessableEntity(this);
         }
 
         var dto = product.ToDto();
@@ -75,7 +75,7 @@ public class ProductsController : ControllerBase
 
         if (!validation.IsValid || updated is null)
         {
-            return validation.ToBadRequest(this);
+            return validation.ToUnprocessableEntity(this);
         }
 
         return Ok(updated.ToDto());

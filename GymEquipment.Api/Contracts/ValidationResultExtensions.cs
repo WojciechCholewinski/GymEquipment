@@ -5,11 +5,11 @@ namespace GymEquipment.Api.Contracts;
 
 public static class ValidationResultExtensions
 {
-    public static IActionResult ToBadRequest(this ValidationResult validation, ControllerBase controller)
+    public static IActionResult ToUnprocessableEntity(this ValidationResult validation, ControllerBase controller)
     {
         var problemDetails = new ValidationProblemDetails
         {
-            Status = StatusCodes.Status400BadRequest,
+            Status = StatusCodes.Status422UnprocessableEntity,
             Title = "Validation failed"
         };
 
@@ -24,6 +24,6 @@ public static class ValidationResultExtensions
             problemDetails.Errors.Add(kv.Key, kv.Value);
         }
 
-        return controller.BadRequest(problemDetails);
+        return controller.UnprocessableEntity(problemDetails);
     }
 }

@@ -1,3 +1,4 @@
+using GymEquipment.Api.Middleware;
 using GymEquipment.Application.Products;
 using GymEquipment.Infrastructure;
 using GymEquipment.Infrastructure.Persistence.Seed;
@@ -19,6 +20,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 await ForbiddenPhrasesSeeder.SeedAsync(app.Services);
 await ProductsSeeder.SeedAsync(app.Services);
