@@ -1,5 +1,6 @@
 using GymEquipment.Application.Products;
 using GymEquipment.Infrastructure;
+using GymEquipment.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,9 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+await ForbiddenPhrasesSeeder.SeedAsync(app.Services);
+await ProductsSeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
