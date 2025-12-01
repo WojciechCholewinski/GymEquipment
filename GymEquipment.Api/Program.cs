@@ -23,8 +23,11 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-await ForbiddenPhrasesSeeder.SeedAsync(app.Services);
-await ProductsSeeder.SeedAsync(app.Services);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    await ForbiddenPhrasesSeeder.SeedAsync(app.Services);
+    await ProductsSeeder.SeedAsync(app.Services);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -38,3 +41,5 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
