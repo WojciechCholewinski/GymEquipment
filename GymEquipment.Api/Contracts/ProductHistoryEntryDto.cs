@@ -8,6 +8,5 @@ namespace GymEquipment.Api.Contracts
      ProductChangeType ChangeType,
      DateTime ChangedAtUtc,
      string? ChangedBy,
-     string? OldValue,
-     string? NewValue);
+     string? ModifiedValue);
 }

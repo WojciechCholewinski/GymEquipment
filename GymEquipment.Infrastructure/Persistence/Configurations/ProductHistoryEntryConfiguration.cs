@@ -25,10 +25,7 @@ namespace GymEquipment.Infrastructure.Persistence.Configurations
             builder.Property(x => x.ChangedBy)
                 .HasMaxLength(200);
 
-            builder.Property(x => x.OldValue)
-                .HasMaxLength(2000);
-
-            builder.Property(x => x.NewValue)
+            builder.Property(x => x.ModifiedValue)
                 .HasMaxLength(2000);
 
             builder.HasIndex(x => x.ProductId);

@@ -108,8 +108,7 @@ public class ProductService : IProductService
             ProductChangeType.Created,
             DateTime.UtcNow,
             changedBy: null,
-            oldValue: null,
-            newValue: $"Created product '{name}' with price {price} and quantity {quantity}");
+            modifiedValue: $"Created product \"{name}\" with description \"{description}\"");
 
         await _history.AddAsync(historyEntry, cancellationToken);
 
@@ -141,8 +140,7 @@ public class ProductService : IProductService
             ProductChangeType.Deleted,
             DateTime.UtcNow,
             null,
-            oldValue: $"Deleted product '{product.Name}'",
-            newValue: null);
+            modifiedValue: $"Deleted product '{product.Name}'");
 
         await _history.AddAsync(entry, cancellationToken);
 
@@ -228,13 +226,13 @@ public class ProductService : IProductService
         var changes = new List<string>();
 
         if (oldPrice != price)
-            changes.Add($"Price: {oldPrice} -> {price}");
+            changes.Add($"Price: from {oldPrice} to {price}");
 
         if (oldQuantity != quantity)
-            changes.Add($"Quantity: {oldQuantity} -> {quantity}");
+            changes.Add($"Quantity: from {oldQuantity} to {quantity}");
 
         if (!string.Equals(oldDescription, description, StringComparison.Ordinal))
-            changes.Add("Description changed");
+            changes.Add($"Description: from \"{oldDescription}\" to \"{description}\"");
 
         if (changes.Count > 0)
         {
@@ -244,8 +242,7 @@ public class ProductService : IProductService
                 changeType: ProductChangeType.Updated,
                 changedAtUtc: DateTime.UtcNow,
                 changedBy: null,
-                oldValue: string.Join("; ", changes),
-                newValue: null);
+                modifiedValue: string.Join("; ", changes));
 
             await _history.AddAsync(historyEntry, cancellationToken);
         }

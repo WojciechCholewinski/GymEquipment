@@ -26,8 +26,7 @@ public static class ProductMappingExtensions
             entry.ChangeType,
             entry.ChangedAtUtc,
             entry.ChangedBy,
-            entry.OldValue,
-            entry.NewValue);
+            entry.ModifiedValue);
 
     public static IEnumerable<ProductHistoryEntryDto> ToDto(this IEnumerable<ProductHistoryEntry> entries)
         => entries.Select(e => e.ToDto());

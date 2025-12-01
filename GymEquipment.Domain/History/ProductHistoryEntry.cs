@@ -13,8 +13,7 @@ namespace GymEquipment.Domain.History
         public ProductChangeType ChangeType { get; }
         public DateTime ChangedAtUtc { get; }
         public string? ChangedBy { get; }
-        public string? OldValue { get; }
-        public string? NewValue { get; }
+        public string? ModifiedValue { get; }
 
         private ProductHistoryEntry() { }
 
@@ -24,16 +23,14 @@ namespace GymEquipment.Domain.History
             ProductChangeType changeType,
             DateTime changedAtUtc,
             string? changedBy,
-            string? oldValue,
-            string? newValue)
+            string? modifiedValue)
             : base(id)
         {
             ProductId = productId;
             ChangeType = changeType;
             ChangedAtUtc = changedAtUtc;
             ChangedBy = changedBy;
-            OldValue = oldValue;
-            NewValue = newValue;
+            ModifiedValue = modifiedValue;
         }
     }
 }

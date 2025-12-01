@@ -95,11 +95,9 @@ public class ProductsController : ControllerBase
     [HttpGet("{id:guid}/history")]
     public async Task<ActionResult<IEnumerable<ProductHistoryEntryDto>>> GetHistory(Guid id, CancellationToken cancellationToken)
     {
-        var product = await _products.GetByIdAsync(id, cancellationToken);
-        if (product is null)
-            return NotFound();
-
         var history = await _products.GetHistoryAsync(id, cancellationToken);
+        if (history is null)
+            return NotFound();
         return Ok(history.ToDto());
     }
 }
