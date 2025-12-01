@@ -3,6 +3,7 @@ using GymEquipment.Application.Specification;
 using GymEquipment.Domain.History;
 using GymEquipment.Domain.Products;
 using GymEquipment.Domain.Products.Specifications;
+using System.Xml.Linq;
 
 namespace GymEquipment.Application.Products;
 
@@ -149,6 +150,7 @@ public class ProductService : IProductService
 
     public async Task<(ValidationResult Validation, Product? Product)> UpdateAsync(
         Guid id,
+        string name,
         int quantity,
         decimal price,
         string? description,
@@ -170,6 +172,27 @@ public class ProductService : IProductService
             return (validation, null);
         }
 
+        // Walidacja formatu nazwy (Domain spec)
+        if (!_nameFormatSpec.IsSatisfiedBy(name))
+        {
+            validation.AddError(_nameFormatSpec.ErrorCode, _nameFormatSpec.ErrorMessage, "Name");
+        }
+
+        // Zakazane frazy (Async spec z Application)
+        var notForbiddenSpec = new ProductNameNotForbiddenSpecification(_forbiddenPhrases);
+        if (!await notForbiddenSpec.IsSatisfiedByAsync(name, cancellationToken))
+        {
+            validation.AddError(notForbiddenSpec.ErrorCode, notForbiddenSpec.ErrorMessage, "Name");
+        }
+
+        if (!string.Equals(existing.Name, name, StringComparison.Ordinal))
+        {
+            // Unikalność nazwy
+            if (await _products.ExistsByNameAsync(name, cancellationToken))
+            {
+                validation.AddError("Product.Name.NotUnique", "Product name must be unique.", "Name");
+            }
+        }
 
         // cena
         if (!_priceRangeSpec.IsSatisfiedBy((existing.Category, price)))
@@ -198,9 +221,15 @@ public class ProductService : IProductService
 
         #region Update encji domenowej
 
+        var oldName = existing.Name;
         var oldPrice = existing.Price;
         var oldQuantity = existing.QuantityAvailable;
         var oldDescription = existing.Description;
+
+        if (!string.Equals(oldName, name, StringComparison.Ordinal))
+        {
+            existing.ChangeName(name);
+        }
 
         if (oldPrice != price)
         {
@@ -225,6 +254,9 @@ public class ProductService : IProductService
 
         var changes = new List<string>();
 
+        if (!string.Equals(oldName, name, StringComparison.Ordinal))
+            changes.Add($"Name: from '{oldName}' to '{name}'");
+
         if (oldPrice != price)
             changes.Add($"Price: from {oldPrice} to {price}");
 
@@ -232,7 +264,7 @@ public class ProductService : IProductService
             changes.Add($"Quantity: from {oldQuantity} to {quantity}");
 
         if (!string.Equals(oldDescription, description, StringComparison.Ordinal))
-            changes.Add($"Description: from \"{oldDescription}\" to \"{description}\"");
+            changes.Add($"Description: from '{oldDescription}' to '{description}'");
 
         if (changes.Count > 0)
         {

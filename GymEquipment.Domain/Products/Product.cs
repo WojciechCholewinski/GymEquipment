@@ -4,7 +4,7 @@ namespace GymEquipment.Domain.Products
 {
     public class Product : Entity
     {
-        public string Name { get; }
+        public string Name { get; private set; }
         public EquipmentType Type { get; }
         public ProductCategory Category { get; }
         public decimal? WeightKg { get; }
@@ -41,6 +41,10 @@ namespace GymEquipment.Domain.Products
             ChangeDescription(description);
             ChangePrice(price);
             ChangeQuantity(quantityAvailable);
+        }
+        public void ChangeName(string newName)
+        {
+            Name = newName;
         }
         public void ChangePrice(decimal newPrice)
         {

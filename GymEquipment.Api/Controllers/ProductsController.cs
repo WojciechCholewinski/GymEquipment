@@ -68,6 +68,7 @@ public class ProductsController : ControllerBase
 
         var (validation, updated) = await _products.UpdateAsync(
             id,
+            request.Name,
             request.QuantityAvailable,
             request.Price,
             request.Description,

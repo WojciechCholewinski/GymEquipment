@@ -1,8 +1,9 @@
-﻿using GymEquipment.Infrastructure.Persistence;
+﻿using GymEquipment.Domain.ForbiddenPhrases;
+using GymEquipment.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace GymEquipment.Api.IntegrationTests
 {
@@ -28,6 +29,23 @@ namespace GymEquipment.Api.IntegrationTests
                 {
                     options.UseInMemoryDatabase("GymEquipmentTests");
                 });
+
+                //////////////////////////////////////////////////////////////////////////////
+
+                var sp = services.BuildServiceProvider();
+
+                using var scope = sp.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<GymEquipmentDbContext>();
+
+                // SEED tylko dla testów
+                if (!db.ForbiddenPhrases.Any())
+                {
+                    db.ForbiddenPhrases.AddRange(
+                        new ForbiddenPhrase(Guid.NewGuid(), "scam"),
+                        new ForbiddenPhrase(Guid.NewGuid(), "fake"),
+                        new ForbiddenPhrase(Guid.NewGuid(), "illegal"));
+                    db.SaveChanges();
+                }
             });
         }
     }
